@@ -1,12 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:json_typedef_dart/json_typedef_dart.dart';
+import 'package:json_typedef_dart/src/types.dart';
+
+import 'invalid_schemas.dart';
 
 void main() {
-  test('adds one to input values', () {
-    final calculator = Calculator();
-    expect(calculator.addOne(2), 3);
-    expect(calculator.addOne(-7), -6);
-    expect(calculator.addOne(0), 1);
-  });
+
+   for(var testCase in InvalidSchemas.entries) {
+    test(testCase.key,(){
+      expect(isValidSchema(testCase.value as Json ),false);
+    });
+   }
+
 }
