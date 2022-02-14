@@ -1,7 +1,7 @@
 
 import 'dart:convert';
 
-Map<String,dynamic> InvalidSchemas = {
+Map<String,dynamic> InvalidSchemas = json.decode( json.encode( {
  // "null schema": null,
  // "boolean schema": true,
  // "integer schema": 1,
@@ -236,4 +236,4 @@ Map<String,dynamic> InvalidSchemas = {
   "invalid form - mapping alone": {
     "mapping": {}
   }
-};
+}));
