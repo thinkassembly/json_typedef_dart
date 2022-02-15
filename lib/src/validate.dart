@@ -1,4 +1,5 @@
 import 'package:json_typedef_dart/src/errors.dart';
+import 'package:json_typedef_dart/src/rfc339.dart';
 import 'package:json_typedef_dart/src/schema.dart';
 import 'package:json_typedef_dart/src/types.dart';
 
@@ -31,7 +32,7 @@ class ValidationState {
     List<Map<String, dynamic>> err = [];
 
     for (ValidationError error in errors) {
-      err.insert(0, error.toMap());
+      err.add( error.toMap());
     }
     return err;
   }
@@ -40,7 +41,7 @@ class ValidationState {
 ValidationErrors validate(
     {required Json schema,
     required dynamic data,
-    int maxDepth = 10,
+    int maxDepth = 0,
     int maxErrors = 0}) {
   ValidationState state =
       ValidationState(root: schema, maxDepth: maxDepth, maxErrors: maxErrors);
@@ -115,9 +116,10 @@ void validateWithState(
         if (instance is! String) {
           pushError(state);
         } else {
-          /*if (!isRFC3339(instance)) {
+
+         if (!isRFC3339(instance)) {
             pushError(state);
-          }*/
+          }
         }
         break;
     }
@@ -134,13 +136,13 @@ void validateWithState(
   } else if (hasElements(schema)) {
     pushSchemaToken(state, "elements");
 
-    if (instance is Map<String, dynamic>) {
-      for (var inst in (instance).entries) {
-        pushInstanceToken(state, inst.key);
+    if (instance is List) {
+      for (var i = 0;i< instance.length ;i++) {
+        pushInstanceToken(state, i.toString());
         validateWithState(
             state: state,
             schema: schema["elements"] as Json,
-            instance: inst.value);
+            instance: instance[i]);
         popInstanceToken(state);
       }
     } else {
@@ -191,14 +193,15 @@ void validateWithState(
         popSchemaToken(state);
       }
 
-      if (!hasAdditionalProperties(schema)) {
+      if (!hasAdditionalProperties(schema) || schema["additionalProperties"] != true) {
         for (var name in instance.keys) {
+          print(name);
           bool inRequired = hasProperties(schema) &&
               (schema["properties"] as Json).containsKey(name);
           bool inOptional = hasOptionalProperties(schema) &&
               (schema["optionalProperties"] as Json).containsKey(name);
 
-          if (!inRequired && !inOptional && name == parentTag) {
+          if (!inRequired && !inOptional && name != parentTag) {
             pushInstanceToken(state, name);
             pushError(state);
             popInstanceToken(state);
@@ -291,16 +294,16 @@ void popInstanceToken(ValidationState state) {
 }
 
 void pushSchemaToken(ValidationState state, String token) {
-  state.schemaTokens[state.schemaTokens.length - 1].add(token);
+  state.schemaTokens.last.add(token);
 }
 
 void popSchemaToken(ValidationState state) {
-  state.schemaTokens[state.schemaTokens.length - 1].removeLast();
+  state.schemaTokens.last.removeLast();
 }
 
 void pushError(ValidationState state) {
-  state.errors.insert(
-      0,
+  state.errors.add(
+
       ValidationError(
         instancePath: [...state.instanceTokens],
         schemaPath: [...state.schemaTokens[state.schemaTokens.length - 1]],
