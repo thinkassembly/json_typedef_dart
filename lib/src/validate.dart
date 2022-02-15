@@ -71,7 +71,6 @@ ValidationErrors validate(
     } else {
       rethrow;
     }
-    return state.errorList();
   }
   return state.errorList();
 }
