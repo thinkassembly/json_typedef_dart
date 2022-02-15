@@ -36,6 +36,16 @@ class ValidationState {
     }
     return err;
   }
+  void popSchemaToken() {
+    schemaTokens.last.removeLast();
+  }
+  void pushSchemaToken( String token) {
+    schemaTokens.last.add(token);
+  }
+
+  void popInstanceToken() {
+    instanceTokens.removeLast();
+  }
 }
 
 ValidationErrors validate(
@@ -76,7 +86,7 @@ void validateWithState(
         instance: instance);
     state.schemaTokens.removeLast();
   } else if (hasType(schema)) {
-    pushSchemaToken(state, "type");
+    state.pushSchemaToken( "type");
     switch (schema["type"]) {
       case 'boolean':
         if (instance is! bool) {
@@ -123,18 +133,18 @@ void validateWithState(
         }
         break;
     }
-    popSchemaToken(state);
+    state.popSchemaToken();
   } else if (hasEnum(schema)) {
-    pushSchemaToken(state, "enum");
+    state.pushSchemaToken( "enum");
 
     var enum_ = List<String>.from(schema["enum"] as List<dynamic>);
     if (instance is! String ||
         !(enum_.contains(instance ))) {
       pushError(state);
     }
-    popSchemaToken(state);
+    state.popSchemaToken();
   } else if (hasElements(schema)) {
-    pushSchemaToken(state, "elements");
+    state.pushSchemaToken( "elements");
 
     if (instance is List) {
       for (var i = 0;i< instance.length ;i++) {
@@ -143,13 +153,13 @@ void validateWithState(
             state: state,
             schema: schema["elements"] as Json,
             instance: instance[i]);
-        popInstanceToken(state);
+        state.popInstanceToken();
       }
     } else {
       pushError(state);
     }
 
-    popSchemaToken(state);
+    state.popSchemaToken();
   } else if (isProperties(schema)) {
     // JSON has six basic types of data (null, boolean, number, string,
     // array, object). Of their standard JS countparts, three have a
@@ -158,39 +168,39 @@ void validateWithState(
     // This check attempts to check if something is "really" an object.
     if (instance is Json) {
       if (hasProperties(schema)) {
-        pushSchemaToken(state, "properties");
+        state.pushSchemaToken( "properties");
         for (var subSchema in (schema["properties"] as Json).entries) {
-          pushSchemaToken(state, subSchema.key);
+          state.pushSchemaToken( subSchema.key);
           if (instance.containsKey(subSchema.key)) {
             pushInstanceToken(state, subSchema.key);
             validateWithState(
                 state: state,
                 schema: subSchema.value as Json,
                 instance: instance[subSchema.key]);
-            popInstanceToken(state);
+            state.popInstanceToken();
           } else {
             pushError(state);
           }
-          popSchemaToken(state);
+          state.popSchemaToken();;
         }
-        popSchemaToken(state);
+        state.popSchemaToken();;
       }
 
       if (hasOptionalProperties(schema)) {
-        pushSchemaToken(state, "optionalProperties");
+        state.pushSchemaToken( "optionalProperties");
         for (var subSchema in (schema["optionalProperties"] as Json).entries) {
-          pushSchemaToken(state, subSchema.key);
+          state.pushSchemaToken( subSchema.key);
           if (instance.containsKey(subSchema.key)) {
             pushInstanceToken(state, subSchema.key);
             validateWithState(
                 state: state,
                 schema: subSchema.value as Json,
                 instance: instance[subSchema.key]);
-            popInstanceToken(state);
+            state.popInstanceToken();
           }
-          popSchemaToken(state);
+          state.popSchemaToken();;
         }
-        popSchemaToken(state);
+        state.popSchemaToken();;
       }
 
       if (!hasAdditionalProperties(schema) || schema["additionalProperties"] != true) {
@@ -203,22 +213,22 @@ void validateWithState(
           if (!inRequired && !inOptional && name != parentTag) {
             pushInstanceToken(state, name);
             pushError(state);
-            popInstanceToken(state);
+            state.popInstanceToken();
           }
         }
       }
     } else {
       if (hasProperties(schema)) {
-        pushSchemaToken(state, "properties");
+        state.pushSchemaToken( "properties");
       } else {
-        pushSchemaToken(state, "optionalProperties");
+        state.pushSchemaToken( "optionalProperties");
       }
 
       pushError(state);
-      popSchemaToken(state);
+      state.popSchemaToken();;
     }
   } else if (hasValues(schema)) {
-    pushSchemaToken(state, "values");
+    state.pushSchemaToken( "values");
 
     // See comment in properties form on why this is the test we use for
     // checking for objects.
@@ -229,13 +239,13 @@ void validateWithState(
             state: state,
             schema: schema["values"] as Json,
             instance: subInstance.value);
-        popInstanceToken(state);
+        state.popInstanceToken();
       }
     } else {
       pushError(state);
     }
 
-    popSchemaToken(state);
+    state.popSchemaToken();;
   } else if (hasDiscriminator(schema)) {
     // See comment in properties form on why this is the test we use for
     // checking for objects.
@@ -245,41 +255,41 @@ void validateWithState(
           String tag = instance[schema["discriminator"]] as String;
 
           if ((schema["mapping"] as Json).containsKey(tag)) {
-            pushSchemaToken(state, "mapping");
-            pushSchemaToken(state, tag);
+            state.pushSchemaToken( "mapping");
+            state.pushSchemaToken( tag);
             validateWithState(
                 state: state,
                 schema: schema["mapping"][tag] as Json,
                 instance: instance,
                 parentTag: schema["discriminator"] as String);
-            popSchemaToken(state);
-            popSchemaToken(state);
+            state.popSchemaToken();
+            state.popSchemaToken();
           } else {
-            pushSchemaToken(state, "mapping");
+            state.pushSchemaToken( "mapping");
             pushInstanceToken(state, schema["discriminator"] as String);
             pushError(state);
-            popInstanceToken(state);
-            popSchemaToken(state);
+            state.popInstanceToken();
+            state.popSchemaToken();
           }
         }
         else {
-          pushSchemaToken(state, "discriminator");
+          state.pushSchemaToken( "discriminator");
           pushInstanceToken(state, schema["discriminator"].toString());
           pushError(state);
-          popInstanceToken(state);
-          popSchemaToken(state);
+          state.popInstanceToken();
+          state.popSchemaToken();;
 
         }
 
       } else {
-        pushSchemaToken(state, "discriminator");
+        state.pushSchemaToken( "discriminator");
         pushError(state);
-        popSchemaToken(state);
+        state.popSchemaToken();
       }
     } else {
-      pushSchemaToken(state, "discriminator");
+      state.pushSchemaToken( "discriminator");
       pushError(state);
-      popSchemaToken(state);
+      state.popSchemaToken();
     }
   }
 }
@@ -288,17 +298,11 @@ void pushInstanceToken(ValidationState state, String token) {
   state.instanceTokens.add(token);
 }
 
-void popInstanceToken(ValidationState state) {
-  state.instanceTokens.removeLast();
-}
 
-void pushSchemaToken(ValidationState state, String token) {
-  state.schemaTokens.last.add(token);
-}
 
-void popSchemaToken(ValidationState state) {
-  state.schemaTokens.last.removeLast();
-}
+
+
+
 
 void pushError(ValidationState state) {
   state.errors.add(
