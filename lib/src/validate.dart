@@ -195,7 +195,6 @@ void validateWithState(
 
       if (!hasAdditionalProperties(schema) || schema["additionalProperties"] != true) {
         for (var name in instance.keys) {
-          print(name);
           bool inRequired = hasProperties(schema) &&
               (schema["properties"] as Json).containsKey(name);
           bool inOptional = hasOptionalProperties(schema) &&

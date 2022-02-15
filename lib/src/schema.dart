@@ -248,7 +248,7 @@ bool isValidSchema(Json? schema, [Json? root]) {
       if (subSchema is! Json) {
         return false;
       }
-      if (!isValidSchema(Map<String, dynamic>.from(subSchema as Json), root)) {
+      if (!isValidSchema(Map<String, dynamic>.from(subSchema ), root)) {
         return false;
       }
     }
@@ -281,8 +281,7 @@ bool isValidSchema(Json? schema, [Json? root]) {
       if (subSchema["nullable"] == true) {
         return false;
       }
-      print(subSchema);
-      print(root);
+
       if (!isValidSchema(subSchema as Json, root) || !isProperties(subSchema)) {
         return false;
       }
