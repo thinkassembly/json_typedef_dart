@@ -54,9 +54,7 @@ class Schema {
 bool hasRef(Json schema) => schema.containsKey("ref");
 
 bool isValidRef(Json schema, Json root) {
-  if (root["definitions"] == null) {
-    return false;
-  }
+
   if (root["definitions"] is! Json) {
     return false;
   }
@@ -76,7 +74,9 @@ bool isValidType(Json schema) =>
 bool hasEnum(Json schema) => schema.containsKey("enum");
 
 bool isValidEnum(Json schema) {
-  if ((schema["enum"] is! List<String>)) {
+
+  if ((schema["enum"] is! List)) {
+
     return false;
   }
   if ((schema["enum"] as List).isEmpty) {
@@ -86,12 +86,20 @@ bool isValidEnum(Json schema) {
       Set<dynamic>.from(schema["enum"] as List).length) {
     return false;
   }
+  for(var enum_ in schema["enum"]) {
+    if(enum_ is! String){
+      return false;
+    }
+
+  }
   return true;
 }
 
 bool hasElements(Json schema) => schema.containsKey("elements");
 
 bool isValidElements(Json schema, Json root) {
+
+
   if (schema["elements"] is! Json) {
     return false;
   }
@@ -152,7 +160,8 @@ bool hasValidKeys(Json schema) {
       "mapping",
       "ref",
       "additionalProperties",
-      "metadata"
+      "metadata",
+      "elements"
     ].contains(key)) {
       return false;
     }
@@ -235,21 +244,24 @@ bool isValidSchema(Json? schema, [Json? root]) {
         return false;
       }
       if (!isValidSchema(subSchema, root)) {
+
         return false;
       }
     }
   }
 
   if (isProperties(schema)) {
-    if (schema['properties'] is! Json) {
+    if (schema['properties'] is! Json && schema["optionalProperties"] is! Json) {
       return false;
     }
-    for (var subSchema in schema["properties"].values) {
-      if (subSchema is! Json) {
-        return false;
-      }
-      if (!isValidSchema(Map<String, dynamic>.from(subSchema ), root)) {
-        return false;
+    if (schema['properties'] is Json) {
+      for (var subSchema in schema["properties"].values) {
+        if (subSchema is! Json) {
+          return false;
+        }
+        if (!isValidSchema(Map<String, dynamic>.from(subSchema), root)) {
+          return false;
+        }
       }
     }
     if (hasOptionalProperties(schema)) {
@@ -259,11 +271,13 @@ bool isValidSchema(Json? schema, [Json? root]) {
         }
       }
     }
-    for (var key in schema["properties"].keys) {
-      if (schema["optionalProperties"] is Json) {
-        if ((Map<String, dynamic>.from(schema["optionalProperties"] as Json))
-            .containsKey(key)) {
-          return false;
+    if (schema['properties'] is Json) {
+      for (var key in schema["properties"].keys) {
+        if (schema["optionalProperties"] is Json) {
+          if ((Map<String, dynamic>.from(schema["optionalProperties"] as Json))
+              .containsKey(key)) {
+            return false;
+          }
         }
       }
     }
@@ -286,13 +300,15 @@ bool isValidSchema(Json? schema, [Json? root]) {
         return false;
       }
 
-      if ((subSchema["properties"] as Json)
+      if (subSchema["properties"] != null && (subSchema["properties"] as Json)
           .containsKey(schema["discriminator"])) {
         return false;
       }
-      if ((subSchema["optionalProperties"] as Json)
-          .containsKey(schema["discriminator"])) {
-        return false;
+      if(hasOptionalProperties(subSchema)) {
+        if ((subSchema["optionalProperties"] as Json)
+            .containsKey(schema["discriminator"])) {
+          return false;
+        }
       }
     }
   }

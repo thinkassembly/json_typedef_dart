@@ -18,7 +18,7 @@ void main() {
   group("JSON Validation", () {
     for (var testCase in TestSchemas.entries) {
       test(testCase.key, () {
-
+      expect(isValidSchema(testCase.value["schema"] as Json),true);
         expect(
             validate(
                 schema: testCase.value["schema"] as Json,
