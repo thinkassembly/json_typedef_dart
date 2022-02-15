@@ -44,14 +44,14 @@ int maxDay(int year, int month) {
     return isLeapYear(year) ? 29 : 28;
   }
 
-  return MONTH_LENGTHS[month];
+  return monthLengths[month];
 }
 
 bool isLeapYear(int n) {
   return n % 4 == 0 && (n % 100 != 0 || n % 400 == 0);
 }
 
-const MONTH_LENGTHS = [
+const monthLengths = [
   0, // months are 1-indexed, this is a dummy element
   31,
   0, // Feb is handled separately

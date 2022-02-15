@@ -1,31 +1,63 @@
 import 'package:collection/collection.dart';
 import 'package:json_typedef_dart/src/types.dart';
 
-const VALID_FORMS = [
+List<Map<SchemaType, List<List<bool>>>> validForms = [
   // Empty form
-  [false, false, false, false, false, false, false, false, false, false],
+  {
+    SchemaType.emptyForm: [
+      [false, false, false, false, false, false, false, false, false, false]
+    ]
+  },
   // Ref form
-  [true, false, false, false, false, false, false, false, false, false],
+  {
+    SchemaType.refForm: [
+      [true, false, false, false, false, false, false, false, false, false]
+    ]
+  },
   // Type form
-  [false, true, false, false, false, false, false, false, false, false],
+  {
+    SchemaType.typeForm: [
+      [false, true, false, false, false, false, false, false, false, false]
+    ]
+  },
   // Enum form
-  [false, false, true, false, false, false, false, false, false, false],
+  {
+    SchemaType.enumForm: [
+      [false, false, true, false, false, false, false, false, false, false]
+    ]
+  },
   // Elements form
-  [false, false, false, true, false, false, false, false, false, false],
+  {
+    SchemaType.elementsForm: [
+      [false, false, false, true, false, false, false, false, false, false]
+    ]
+  },
   // Properties form -- properties or optional properties or both, and never
   // additional properties on its own
-  [false, false, false, false, true, false, false, false, false, false],
-  [false, false, false, false, false, true, false, false, false, false],
-  [false, false, false, false, true, true, false, false, false, false],
-  [false, false, false, false, true, false, true, false, false, false],
-  [false, false, false, false, false, true, true, false, false, false],
-  [false, false, false, false, true, true, true, false, false, false],
+  {
+    SchemaType.propertiesForm: [
+      [false, false, false, false, true, false, false, false, false, false],
+      [false, false, false, false, false, true, false, false, false, false],
+      [false, false, false, false, true, true, false, false, false, false],
+      [false, false, false, false, true, false, true, false, false, false],
+      [false, false, false, false, false, true, true, false, false, false],
+      [false, false, false, false, true, true, true, false, false, false]
+    ]
+  },
   // Values form
-  [false, false, false, false, false, false, false, true, false, false],
+  {
+    SchemaType.valuesForm: [
+      [false, false, false, false, false, false, false, true, false, false]
+    ]
+  },
   // Discriminator form
-  [false, false, false, false, false, false, false, false, true, true],
+  {
+    SchemaType.discriminatorForm: [
+      [false, false, false, false, false, false, false, false, true, true]
+    ]
+  },
 ];
-const VALID_TYPES = [
+const validTypes = [
   "boolean",
   "float32",
   "float64",
@@ -71,7 +103,7 @@ bool isEmpty(Json schema) => schema.isEmpty;
 bool hasType(Json schema) => schema.containsKey("type");
 
 bool isValidType(Json schema) =>
-    (schema["type"] is String) && (VALID_TYPES.contains(schema["type"]));
+    (schema["type"] is String) && (validTypes.contains(schema["type"]));
 
 bool validateType(Json schema) => hasType(schema) ? isValidType(schema) : true;
 
@@ -166,7 +198,8 @@ bool isValidValues(Json schema, Json root) {
   return true;
 }
 
-bool validateValues(Json schema, Json root) => hasValues(schema) ? isValidValues(schema,root) : true;
+bool validateValues(Json schema, Json root) =>
+    hasValues(schema) ? isValidValues(schema, root) : true;
 
 bool hasDiscriminator(Json schema) => schema.containsKey("discriminator");
 
@@ -202,7 +235,8 @@ bool isValidDiscriminator(Json schema, Json root) {
   return true;
 }
 
-bool validateDiscriminator(Json schema, Json root) => hasDiscriminator(schema) ? isValidDiscriminator(schema,root) : true;
+bool validateDiscriminator(Json schema, Json root) =>
+    hasDiscriminator(schema) ? isValidDiscriminator(schema, root) : true;
 
 bool hasDefinitions(Json schema) => schema.containsKey('definitions');
 
@@ -246,30 +280,32 @@ bool validateAdditionalProperties(Json schema) =>
 
 bool hasMapping(Json schema) => schema.containsKey("mapping");
 
+const validSchemaKeys = [
+  "properties",
+  "definitions",
+  "enum",
+  "optionalProperties",
+  "values",
+  "discriminator",
+  "nullable",
+  "type",
+  "mapping",
+  "ref",
+  "additionalProperties",
+  "metadata",
+  "elements"
+];
+
 bool hasValidKeys(Json schema) {
   for (var key in schema.keys) {
-    if (![
-      "properties",
-      "definitions",
-      "enum",
-      "optionalProperties",
-      "values",
-      "discriminator",
-      "nullable",
-      "type",
-      "mapping",
-      "ref",
-      "additionalProperties",
-      "metadata",
-      "elements"
-    ].contains(key)) {
+    if (!validSchemaKeys.contains(key)) {
       return false;
     }
   }
   return true;
 }
 
-bool hasValidForm(Json schema) {
+SchemaType hasValidForm(Json schema) {
   var formSignature = [
     hasRef(schema),
     hasType(schema),
@@ -284,12 +320,16 @@ bool hasValidForm(Json schema) {
   ];
   Function eq = const ListEquality<bool>().equals;
 
-  bool formOK = false;
+  SchemaType formOK = SchemaType.invalidForm;
 
-  for (var validForm in VALID_FORMS) {
-    if (eq(validForm, formSignature) == true) {
-      formOK = true;
-      break;
+  for (var validForm in validForms) {
+    for (var matches in validForm.entries) {
+      for (var form in matches.value) {
+        if (eq(form, formSignature) == true) {
+          formOK = matches.key;
+          break;
+        }
+      }
     }
   }
   return formOK;
@@ -302,48 +342,41 @@ bool isValidSchema(Json? schema, [Json? root]) {
   if (!hasValidKeys(schema)) {
     return false;
   }
-  if (!hasValidForm(schema)) {
-    return false;
-  }
+  var schemaType = hasValidForm(schema);
   if (hasNullable(schema)) {
     if (schema["nullable"] is! bool) {
       return false;
     }
   }
 
-  if (!validateType(schema)) {
-    return false;
-  }
-  if (!validateEnum(schema)) {
-    return false;
-  }
-
-  if (!validateAdditionalProperties(schema)) {
-    return false;
-  }
-
-  if (!validateElements(schema, root)) {
-    return false;
-  }
-
-  if (!validateRef(schema, root)) {
-    return false;
-  }
-
-  if (!validateValues(schema, root)) {
-    return false;
-  }
-
-  if (!validateDefinitions(schema, root)) {
-    return false;
-  }
-
-  if (!validateProperties(schema, root)) {
-    return false;
-  }
-
-  if (!validateDiscriminator(schema, root)) {
-    return false;
+  switch (schemaType) {
+    case SchemaType.typeForm:
+      return validateType(schema);
+    case SchemaType.enumForm:
+      return validateEnum(schema);
+    case SchemaType.elementsForm:
+      return validateElements(schema, root);
+    case SchemaType.refForm:
+      return validateRef(schema, root);
+    case SchemaType.valuesForm:
+      return validateValues(schema, root);
+    case SchemaType.discriminatorForm:
+      return validateDiscriminator(schema, root);
+    case SchemaType.propertiesForm:
+      if (!validateDefinitions(schema, root)) {
+        return false;
+      }
+      if (!validateProperties(schema, root)) {
+        return false;
+      }
+      if (!validateAdditionalProperties(schema)) {
+        return false;
+      }
+      break;
+    case SchemaType.emptyForm:
+      return validateDefinitions(schema, root);
+    case SchemaType.invalidForm:
+      return false;
   }
 
   return true;

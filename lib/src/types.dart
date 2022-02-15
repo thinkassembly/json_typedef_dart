@@ -2,7 +2,7 @@
 typedef Json = Map<String, dynamic>;
 typedef ValidationErrors = List<Map<String,dynamic>>;
 
-enum SchemaType {
+enum ValueType {
   boolean,
   float32,
   float64,
@@ -14,4 +14,16 @@ enum SchemaType {
   uint32,
   string,
   timestamp
+}
+
+enum SchemaType {
+  emptyForm,
+  typeForm,
+  enumForm,
+  elementsForm,
+  propertiesForm,
+  valuesForm,
+  discriminatorForm,
+  refForm,
+  invalidForm
 }
