@@ -1,7 +1,6 @@
+import '../json_typedef_dart.dart';
 
-
-
-typedef Json = Map<String,dynamic>;
+typedef Json = Map<String, dynamic>;
 typedef ValidationErrors = List<Map<String,dynamic>>;
 
 enum SchemaType {
