@@ -37,8 +37,7 @@ void main() {
         "loop": {"ref": "loop"}
       }
     }, null);
-  }
-  catch(e){
+  } catch (e) {
     print(e);
   }
 }
