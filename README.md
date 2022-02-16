@@ -15,16 +15,10 @@ schemas.
 
 ## Installation
 
-You can install this package with `npm`:
+You can install this package with `pub`:
 
 ```bash
-npm install jtd
-```
 
-Or with `yarn`:
-
-```bash
-yarn add jtd
 ```
 
 ## Documentation
