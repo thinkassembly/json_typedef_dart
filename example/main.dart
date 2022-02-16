@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 
 import 'package:json_typedef_dart/json_typedef_dart.dart';
-import 'package:json_typedef_dart/src/types.dart';
 
 Json schema = <String, dynamic>{
   "properties": {

@@ -36,7 +36,6 @@ a JSON Typedef schema:
 
 ```dart
 import 'package:json_typedef_dart/json_typedef_dart.dart';
-import 'package:json_typedef_dart/src/types.dart';
 
 Json schema = <String, dynamic>{
    "properties": {
@@ -89,35 +88,47 @@ void main() {
 
 ## Advanced Usage: Limiting Errors Returned
 
-By default, `jtd.validate` returns every error it finds. If you just care about
+By default, `validate` returns every error it finds. If you just care about
 whether there are any errors at all, or if you can't show more than some number
-of errors, then you can get better performance out of `jtd.validate` using the
+of errors, then you can get better performance out of `validate` using the
 `maxErrors` option.
 
 For example, taking the same example from before, but limiting it to 1 error, we
 get:
 
-```ts
+```dart
+import 'package:json_typedef_dart/json_typedef_dart.dart';
+
+Json schema = <String, dynamic>{
+   "properties": {
+      "name": {"type": "string"},
+      "age": {"type": "uint32"},
+      "phones": {
+         "elements": {"type": "string"}
+      }
+   }
+};
+
+void main() {
 // Outputs:
 //
 // [ { instancePath: [], schemaPath: [ 'properties', 'name' ] } ]
-console.log(validate(schema, {
-  age: "43",
-  phones: ["+44 1234567", 442345678],
-}, { maxErrors: 1 }))
+   print(validate(schema: schema, data: {
+      "age": "43",
+              "phones": ["+44 1234567", "+44 2345678"],
+   },maxErrors: 1));
+
+}
 ```
 
 ## Advanced Usage: Handling Untrusted Schemas
 
-If you want to run `jtd` against a schema that you don't trust, then you should:
+If you want to run `validate` against a schema that you don't trust, then you should:
 
-1. Ensure the schema is well-formed, using `jtd.isSchema` and
-   `jtd.isValidSchema`. `isSchema` does basic "type" checking (and in
-   TypeScript, it acts as a type guard for the `Schema` type), while
-   `isValidSchema` validates things like making sure all `ref`s have
+1. Ensure the schema is well-formed, using  `isValidSchema` which validates things like making sure all `ref`s have
    corresponding definitions.
 
-2. Call `jtd.validate` with the `maxDepth` option. JSON Typedef lets you write
+2. Call `validate` with the `maxDepth` option. JSON Typedef lets you write
    recursive schemas -- if you're evaluating against untrusted schemas, you
    might go into an infinite loop when evaluating against a malicious input,
    such as this one:
@@ -134,7 +145,7 @@ If you want to run `jtd` against a schema that you don't trust, then you should:
    ```
 
    The `maxDepth` option tells `jtd.validate` how many `ref`s to follow
-   recursively before giving up and throwing `jtd.MaxDepthExceededError`.
+   recursively before giving up and throwing `MaxDepthExceededError`.
 
 Here's an example of how you can use `jtd` to evaluate data against an untrusted
 schema:
