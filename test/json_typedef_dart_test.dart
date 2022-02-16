@@ -1,6 +1,5 @@
 import 'package:test/test.dart';
 import 'package:json_typedef_dart/json_typedef_dart.dart';
-import 'package:json_typedef_dart/src/errors.dart';
 import 'package:json_typedef_dart/src/rfc339.dart';
 import 'invalid_schemas.dart';
 import 'schema_validation.dart';
