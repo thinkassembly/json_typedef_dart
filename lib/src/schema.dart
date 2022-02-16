@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:json_typedef_dart/src/types.dart';
 
-Map<SchemaType, List<Map<List<bool>, bool Function(Json schema, Json root)>>> validForms = {
+const Map<SchemaType, List<Map<List<bool>, bool Function(Json schema, Json root)>>> validForms = {
   // Empty form
 
   SchemaType.emptyForm: [
@@ -248,9 +248,6 @@ bool isValidDefinitions(Json schema, Json root) {
 
 bool validateDefinitions(Json schema, Json root) => hasDefinitions(schema) ? isValidDefinitions(schema, root) : true;
 
-
-
-
 bool isValidAdditionalProperties(Json schema) => schema["additionalProperties"] is bool;
 
 bool validateAdditionalProperties(Json schema) => hasAdditionalProperties(schema) ? isValidAdditionalProperties(schema) : true;
@@ -307,12 +304,11 @@ bool isValidSchemaForm(Json schema, Json root) {
     hasDiscriminator(schema),
     hasMapping(schema),
   ];
-  Function eq = const ListEquality<bool>().equals;
 
   for (var validForm in validForms.entries) {
     for (var formSignatures in validForm.value) {
       for (var form in formSignatures.entries) {
-        if (eq(form.key, formSignature) == true) {
+        if (const ListEquality<bool>().equals(form.key, formSignature) == true) {
           return form.value(schema, root);
         }
       }
