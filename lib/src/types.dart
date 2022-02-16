@@ -1,7 +1,7 @@
-
 typedef Json = Map<String, dynamic>;
-typedef ValidationErrors = List<Map<String,dynamic>>;
-typedef FormsMap = Map<SchemaType, List<Map<List<bool>, bool Function(Json schema, Json root)>>> ;
+typedef ValidationErrors = List<Map<String, dynamic>>;
+typedef FormsMap = Map<SchemaType,
+    List<Map<List<bool>, bool Function(Json schema, Json root)>>>;
 enum ValueType {
   boolean,
   float32,

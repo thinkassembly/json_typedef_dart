@@ -57,6 +57,34 @@ class ValidationState {
   }
 }
 
+/// validate performs JSON Typedef validation of an instance (or "input") against
+/// a JSON Typedef schema, returning a standardized set of errors.
+///
+/// This function may throw [MaxDepthExceededError] if you have configured
+/// a [maxDepth]. If you do not configure such a maxDepth,
+/// then this function may cause a stack overflow. That's because of
+/// circularly-defined schemas like this one:
+///
+/// ```json
+/// {
+///   "ref": "loop",
+///   "definitions": {
+///     "loop": { "ref": "loop" }
+///   }
+/// }
+/// ```
+///
+/// If your schema is not circularly defined like this, then there is no risk for
+/// validate to overflow the stack.
+///
+/// If you are only interested in a certain number of error messages, consider
+/// using [maxErrors] to get better performance. For
+/// instance, if all you care about is whether the input is OK or if it has
+/// errors, you may want to set maxErrors to 1.
+///
+/// [schema] The schema to validate data against
+/// [data] The "input" to validate
+/// [maxDepth] How deep to recurse. Optional.
 ValidationErrors validate(
     {required Json schema,
     required dynamic data,
@@ -167,7 +195,6 @@ void validateWithState(
 
     state.popSchemaToken();
   } else if (isProperties(schema)) {
-
     if (instance is Json) {
       if (hasProperties(schema)) {
         state.pushSchemaToken("properties");

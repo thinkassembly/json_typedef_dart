@@ -1,4 +1,3 @@
-
 import 'package:test/test.dart';
 import 'package:json_typedef_dart/json_typedef_dart.dart';
 import 'package:json_typedef_dart/src/errors.dart';
@@ -25,7 +24,10 @@ void main() {
       };
       Json? instance;
 
-      expect(() => validate(schema: schema, data: instance, maxDepth: 5, maxErrors: 0), throwsA(isA<MaxDepthExceededError>()));
+      expect(
+          () => validate(
+              schema: schema, data: instance, maxDepth: 5, maxErrors: 0),
+          throwsA(isA<MaxDepthExceededError>()));
     });
 
     test("supports limited errors", () {
@@ -34,13 +36,20 @@ void main() {
       };
       const instance = [null, null, null, null, null];
 
-      expect(validate(schema: schema, data: instance, maxDepth: 0, maxErrors: 3).length, 3);
+      expect(
+          validate(schema: schema, data: instance, maxDepth: 0, maxErrors: 3)
+              .length,
+          3);
     });
 
     for (var testCase in TestSchemas.entries) {
       test(testCase.key, () {
         expect(isValidSchema(testCase.value["schema"] as Json), true);
-        expect(validate(schema: testCase.value["schema"] as Json, data: testCase.value["instance"]), testCase.value["errors"]);
+        expect(
+            validate(
+                schema: testCase.value["schema"] as Json,
+                data: testCase.value["instance"]),
+            testCase.value["errors"]);
       });
     }
   });

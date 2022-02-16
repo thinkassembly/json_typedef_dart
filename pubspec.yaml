@@ -1,6 +1,6 @@
 name: json_typedef_dart
-description: JSON Validation for Dart using Json Type Definition.
-version: 0.0.1
+description: JSON Validation for Dart using Json Type Definition. Implements the standard introduced at https://jsontypedef.com/
+version: 0.0.3
 homepage: https://github.com/thinkassembly/json_typedef_dart
 
 environment:

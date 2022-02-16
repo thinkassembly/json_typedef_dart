@@ -16,9 +16,11 @@ void main() {
 // Outputs:
 //
 // [ { instancePath: [], schemaPath: [ 'properties', 'name' ] } ]
-  print(validate(schema: schema, data: {
-    "age": "43",
-    "phones": ["+44 1234567", "+44 2345678"],
-  },maxErrors: 1));
-
+  print(validate(
+      schema: schema,
+      data: {
+        "age": "43",
+        "phones": ["+44 1234567", "+44 2345678"],
+      },
+      maxErrors: 1));
 }

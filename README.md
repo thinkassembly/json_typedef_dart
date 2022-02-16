@@ -15,11 +15,8 @@ schemas.
 
 ## Installation
 
-You can install this package with `pub`:
+You can install this package with `pub`
 
-```bash
-
-```
 
 ## Documentation
 
@@ -133,7 +130,7 @@ If you want to run `validate` against a schema that you don't trust, then you sh
    might go into an infinite loop when evaluating against a malicious input,
    such as this one:
 
-   ```json
+```json
    {
      "ref": "loop",
      "definitions": {
@@ -142,7 +139,7 @@ If you want to run `validate` against a schema that you don't trust, then you sh
        }
      }
    }
-   ```
+```
 
    The `maxDepth` option tells `jtd.validate` how many `ref`s to follow
    recursively before giving up and throwing `MaxDepthExceededError`.
@@ -195,4 +192,4 @@ void main() {
 }
 ```
 
-
+[jtd]: https://jsontypedef.com
