@@ -34,30 +34,30 @@ For more high-level documentation about JSON Typedef in general see:
 Here's an example of how you can use this package to validate JSON data against
 a JSON Typedef schema:
 
-```ts
-import { Schema, validate } from "jtd";
+```dart
+import 'package:json_typedef_dart/json_typedef_dart.dart';
+import 'package:json_typedef_dart/src/types.dart';
 
-// You can leave out the "as Schema" part at the end if you're using JavaScript
-// and not TypeScript.
-const schema = {
-  properties: {
-    name: { type: "string" },
-    age: { type: "uint32" },
-    phones: {
-      elements: { type: "string" }
-    }
-  }
-} as Schema;
+Json schema = <String, dynamic>{
+   "properties": {
+      "name": {"type": "string"},
+      "age": {"type": "uint32"},
+      "phones": {
+         "elements": {"type": "string"}
+      }
+   }
+};
 
-// jtd.validate returns an array of validation errors. If there were no problems
+void main() {
+// validate returns an array of validation errors. If there were no problems
 // with the input, it returns an empty array.
 
 // Outputs: []
-console.log(validate(schema, {
-  name: "John Doe",
-  age: 43,
-  phones: ["+44 1234567", "+44 2345678"],
-}))
+   print(validate(schema: schema, data: {
+      "name": "John Doe",
+              "age": 43,
+              "phones": ["+44 1234567", "+44 2345678"],
+   }));
 
 // This next input has three problems with it:
 //
@@ -80,10 +80,11 @@ console.log(validate(schema, {
 //     schemaPath: [ 'properties', 'phones', 'elements', 'type' ]
 //   }
 // ]
-console.log(validate(schema, {
-  age: "43",
-  phones: ["+44 1234567", 442345678],
-}))
+   print(validate(schema: schema, data: {
+      "age": "43",
+              "phones": ["+44 1234567", 442345678],
+   }));
+}
 ```
 
 ## Advanced Usage: Limiting Errors Returned

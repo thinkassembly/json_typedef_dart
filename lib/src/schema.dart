@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:json_typedef_dart/src/types.dart';
 
-const Map<SchemaType, List<Map<List<bool>, bool Function(Json schema, Json root)>>> validForms = {
+const FormsMap validForms = {
   // Empty form
 
   SchemaType.emptyForm: [
