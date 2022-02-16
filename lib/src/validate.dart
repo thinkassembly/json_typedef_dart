@@ -167,11 +167,7 @@ void validateWithState(
 
     state.popSchemaToken();
   } else if (isProperties(schema)) {
-    // JSON has six basic types of data (null, boolean, number, string,
-    // array, object). Of their standard JS countparts, three have a
-    // `typeof` of "object": null, array, and object.
-    //
-    // This check attempts to check if something is "really" an object.
+
     if (instance is Json) {
       if (hasProperties(schema)) {
         state.pushSchemaToken("properties");
