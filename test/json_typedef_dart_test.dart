@@ -1,10 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
 
+import 'package:test/test.dart';
 import 'package:json_typedef_dart/json_typedef_dart.dart';
 import 'package:json_typedef_dart/src/errors.dart';
 import 'package:json_typedef_dart/src/rfc339.dart';
-import 'package:json_typedef_dart/src/types.dart';
-
 import 'invalid_schemas.dart';
 import 'schema_validation.dart';
 
